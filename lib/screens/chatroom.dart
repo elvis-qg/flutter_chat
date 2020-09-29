@@ -1,6 +1,6 @@
 import 'package:chat_app/helper/authenticator.dart';
 import 'package:chat_app/screens/profile.dart';
-import 'package:chat_app/screens/signin.dart';
+import 'package:chat_app/screens/search.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:flutter/material.dart';
 
@@ -28,21 +28,33 @@ class _ChatRoomState extends State<ChatRoom> {
             onTap: () {
               authMethods.logOut();
               Navigator.pushReplacement(context, MaterialPageRoute(
+                  builder: (context) => Profile() ));
+            },
+            child:
+            Container(
+                child: Icon(Icons.account_circle),
+                padding: EdgeInsets.only(right: 20)
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              authMethods.logOut();
+              Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (context) => Authenticator() ));
             },
             child:
               Container(
                 child: Icon(Icons.exit_to_app),
-                padding: EdgeInsets.symmetric(horizontal: 20)
+                padding: EdgeInsets.only(right: 20)
               ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.account_circle),
+        child: Icon(Icons.add),
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(
-              builder: (context) => Profile()
+              builder: (context) => Search()
           ));
         },
       ),

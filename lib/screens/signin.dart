@@ -1,8 +1,10 @@
 import 'package:chat_app/screens/chatroom.dart';
+import 'package:chat_app/services/database.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/services/auth.dart';
-
+import 'package:chat_app/helper/helper_functions.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggle;
@@ -15,9 +17,11 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   TextEditingController emailController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
+  DatabaseMethods databaseMethods = new DatabaseMethods();
+  AuthMethods authMethods = new AuthMethods();
   bool isLoading = false;
   final formKey = GlobalKey<FormState>();
-  AuthMethods authMethods = new AuthMethods();
+  QuerySnapshot snapshotUserData;
 
   signIn() {
     if (formKey.currentState.validate()) {
@@ -25,9 +29,18 @@ class _SignInState extends State<SignIn> {
         isLoading = true;
       });
       authMethods.signIn(emailController.text, passwordController.text).then((val){
-        Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (context) => ChatRoom()
-        ));
+        if (val !=  null) {
+          databaseMethods.getUserByEmail(emailController.text).then((val) {
+            snapshotUserData = val;
+            HelperFunctions.saveUsermameKey(snapshotUserData.docs[0].data()["username"]);
+          });
+          HelperFunctions.saveEmailKey(emailController.text);
+          HelperFunctions.saveLoggedInKey(true);
+          Navigator.pushReplacement(context, MaterialPageRoute(
+              builder: (context) => ChatRoom()
+          ));
+        }
+
       });
     }
   }

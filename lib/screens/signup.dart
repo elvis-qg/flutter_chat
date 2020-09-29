@@ -1,7 +1,8 @@
 import 'dart:convert';
-
+import 'package:chat_app/helper/helper_functions.dart';
 import 'package:chat_app/screens/chatroom.dart';
 import 'package:chat_app/services/auth.dart';
+import 'package:chat_app/services/database.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -24,18 +25,22 @@ class _SignUpState extends State<SignUp> {
   TextEditingController confirmPasswordController = new TextEditingController();
   bool isLoading = false;
   final formKey = GlobalKey<FormState>();
+
   AuthMethods authMethods = new AuthMethods();
+  DatabaseMethods databaseMethods = new DatabaseMethods();
 
   signUp() {
     if (formKey.currentState.validate()) {
+      Map<String, String> userData = {
+        "username" : usernameController.text,
+        "email" : emailController.text
+      };
+      HelperFunctions.saveUsermameKey(usernameController.text);
+      HelperFunctions.saveEmailKey(emailController.text);
       setState(() {
         isLoading = true;
       });
-      authMethods.signUp(emailController.text, passwordController.text).then((val){
-        Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (context) => ChatRoom()
-        ));
-      });
+      databaseMethods.uploadUserInfo(userData);
       http.post(
         'https://apiflutterchat.herokuapp.com/users',
         headers: <String, String>{
@@ -48,6 +53,11 @@ class _SignUpState extends State<SignUp> {
           'age': ageController.text
         }),
       );
+      authMethods.signUp(emailController.text, passwordController.text).then((val){
+        Navigator.pushReplacement(context, MaterialPageRoute(
+            builder: (context) => ChatRoom()
+        ));
+      });
     }
   }
   @override
